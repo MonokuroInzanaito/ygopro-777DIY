@@ -1,0 +1,82 @@
+--云殷
+local m=32844002
+local cm=_G["c"..m]
+function cm.initial_effect(c)
+	local e1=nil
+	--pendulum summon
+	aux.EnablePendulumAttribute(c)
+	--debuff
+	e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
+	e1:SetRange(LOCATION_PZONE)
+	e1:SetTargetRange(1,0)
+	e1:SetTarget(function(e,c,sump,sumtype,sumpos,targetp)
+		return not c:IsRace(RACE_PYRO)
+	end)
+	c:RegisterEffect(e1)
+	e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_IMMUNE_EFFECT)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
+	e1:SetRange(LOCATION_PZONE)
+	e1:SetValue(function(e,re)
+		return e:GetHandlerPlayer()==re:GetHandlerPlayer() and e:GetHandler():GetLocation()==LOCATION_PZONE
+	end)
+	--c:RegisterEffect(e1)
+	--disable
+	e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetRange(LOCATION_PZONE)
+	e1:SetTargetRange(LOCATION_DECK,LOCATION_DECK)
+	c:RegisterEffect(e1)
+	--hand
+	e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(m,0))
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetRange(LOCATION_HAND)
+	e1:SetCountLimit(1)
+	e1:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+		local c=e:GetHandler()
+		return not c:IsForbidden() and (Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1))
+	end)
+	e1:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+		local c=e:GetHandler()
+		Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
+	end)
+	c:RegisterEffect(e1)
+	--remove
+	e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(m,1))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_REMOVE)
+	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
+	e1:SetCountLimit(1,m)
+	e1:SetTarget(function(e,tp,eg,ep,ev,re,r,rp,chk)
+		if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(cm.SpSummonPyro,tp,LOCATION_REMOVED,0,1,nil,e,tp) end
+		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,0)
+	end)
+	e1:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local g=Duel.SelectMatchingCard(tp,cm.SpSummonPyro,tp,LOCATION_REMOVED,0,1,1,nil,e,tp)
+		local tg=g:GetFirst()
+		if tg==nil then return end
+		Duel.SpecialSummon(tg,0,tp,tp,false,false,POS_FACEUP)
+	end)
+	c:RegisterEffect(e1)
+	e1=Effect.Clone(e1)
+	e1:SetCode(EVENT_TO_DECK)
+	e1:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+		local c=e:GetHandler()
+		return not c:IsLocation(LOCATION_DECK)
+	end)
+	c:RegisterEffect(e1)
+end
+function cm.SpSummonPyro(c,e,tp)
+	return c:IsFaceup() and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsRace(RACE_PYRO) and not c:IsCode(m)
+end

@@ -1,0 +1,121 @@
+--诱光·迷迭香
+function c75646528.initial_effect(c)
+	c:EnableCounterPermit(0x1b)
+	--Activate
+	local e1=Effect.CreateEffect(c)
+	e1:SetCategory(CATEGORY_EQUIP+CATEGORY_COUNTER)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetTarget(c75646528.target)
+	e1:SetOperation(c75646528.activate)
+	c:RegisterEffect(e1)
+	--Equip limit
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_SINGLE)
+	e2:SetCode(EFFECT_EQUIP_LIMIT)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e2:SetValue(c75646528.eqlimit)
+	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_EQUIP)
+	e3:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	e3:SetValue(c75646528.efilter)
+	e3:SetCondition(c75646528.con)
+	c:RegisterEffect(e3)
+	--remove
+	local e4=Effect.CreateEffect(c)
+	e4:SetCategory(CATEGORY_RECOVER)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetRange(LOCATION_SZONE)
+	e4:SetCountLimit(1)
+	e4:SetCondition(c75646528.recon)
+	e4:SetTarget(c75646528.retg)
+	e4:SetOperation(c75646528.reop)
+	c:RegisterEffect(e4)
+	--search
+	local e5=Effect.CreateEffect(c)
+	e5:SetCategory(CATEGORY_SEARCH+CATEGORY_TOHAND)
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_GRAVE)
+	e5:SetCountLimit(3,75646503)
+	e5:SetCost(c75646528.thcost)
+	e5:SetTarget(c75646528.thtg)
+	e5:SetOperation(c75646528.thop)
+	c:RegisterEffect(e5)
+end
+function c75646528.filter(c)
+	return c:IsFaceup() and c:IsSetCard(0x2c5) and c:GetBaseAttack()==7 and c:GetEquipGroup():FilterCount(c75646528.filter2,nil)<3
+end
+function c75646528.filter2(c)
+	return c:IsSetCard(0x2c5) and c:IsType(TYPE_EQUIP)
+end
+function c75646528.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:GetLocation()==LOCATION_MZONE and c75646528.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c75646528.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+	Duel.SelectTarget(tp,c75646528.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_EQUIP,e:GetHandler(),1,0,0)
+end
+function c75646528.activate(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if c:IsRelateToEffect(e) and tc:IsRelateToEffect(e) and tc:IsFaceup() then
+		Duel.Equip(tp,c,tc)
+		e:GetHandler():AddCounter(0x1b,3)
+	end
+end
+function c75646528.eqlimit(e,c)
+	return c:IsSetCard(0x2c5) and c:GetBaseAttack()==7 and c:GetEquipGroup():FilterCount(c75646528.filter2,nil)<4
+end
+function c75646528.efilter(e,re,rp)
+	return e:GetHandlerPlayer()~=rp
+end
+function c75646528.con(e)
+	return e:GetHandler():GetCounter(0x1b)>0
+end
+function c75646528.recon(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetHandler():GetEquipTarget() 
+	return tc and tc:GetCounter(0x12c5)<=4 and e:GetHandler():GetCounter(0x1b)>0 and(Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2)
+end
+function c75646528.retg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.SetTargetPlayer(tp)
+	Duel.SetTargetParam(1500)
+	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,1500)
+end
+function c75646528.reop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetHandler():GetEquipTarget() 
+	if not e:GetHandler():IsRelateToEffect(e) then return end
+	e:GetHandler():RemoveCounter(tp,0x1b,1,REASON_EFFECT)
+	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
+	Duel.Recover(p,d,REASON_EFFECT)
+	tc:AddCounter(0x12c5,1)
+end
+function c75646528.cfilter(c)
+	return (c:IsSetCard(0x2c5) and c:IsType(TYPE_EQUIP)) or c:IsSetCard(0x32c5) and c:IsAbleToRemoveAsCost()
+end
+function c75646528.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost()
+		and Duel.IsExistingMatchingCard(c75646528.cfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler()) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,c75646528.cfilter,tp,LOCATION_GRAVE,0,1,1,e:GetHandler())
+	g:AddCard(e:GetHandler())
+	Duel.Remove(g,POS_FACEUP,REASON_COST)
+end
+function c75646528.thfilter(c)
+	return c:IsSetCard(0x2c5) and c:IsAbleToHand()
+end
+function c75646528.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(c75646528.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+end
+function c75646528.thop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,c75646528.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if g:GetCount()>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
+	end
+end

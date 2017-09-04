@@ -1,0 +1,130 @@
+--传说之剑士 迪昂·德·鲍蒙
+function c99998988.initial_effect(c)
+	--synchro summon
+	aux.AddSynchroProcedure(c,nil,aux.NonTuner(nil),1)
+	c:EnableReviveLimit()
+	--自我暗示
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(99991094,11))
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetHintTiming(0,0x1e0)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetCountLimit(1,EFFECT_COUNT_CODE_SINGLE)
+	e1:SetCost(c99998988.cost)
+	e1:SetOperation(c99998988.attop)
+	c:RegisterEffect(e1)
+    local e2=e1:Clone()
+	e2:SetDescription(aux.Stringid(99991094,12))
+	e2:SetOperation(c99998988.rcop)
+	c:RegisterEffect(e2)
+	--绚烂绽放的百合花
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(99991094,10))
+	e3:SetType(EFFECT_TYPE_QUICK_O)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1)
+	e3:SetProperty(EFFECT_FLAG_NO_TURN_RESET)
+	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetHintTiming(0,0x1e0)
+	e3:SetCost(c99998988.bhcost)
+	e3:SetTarget(c99998988.bhtg)
+	e3:SetOperation(c99998988.bhop)
+	c:RegisterEffect(e3)
+	--cannot be target
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetTargetRange(LOCATION_MZONE,0)
+	e4:SetCode(EFFECT_CANNOT_BE_BATTLE_TARGET)
+	e4:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	e4:SetTarget(c99998988.tg)
+	e4:SetValue(1)
+	c:RegisterEffect(e4)
+	local e5=e4:Clone()
+	e5:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+	e5:SetValue(c99998988.tglimit)
+	e5:SetTarget(c99998988.tg)
+	c:RegisterEffect(e5)
+end
+function c99998988.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return  true end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+end
+function c99998988.attop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	Duel.Hint(HINT_SELECTMSG,tp,562)
+	local catt=e:GetHandler():GetAttribute()
+	local att=Duel.AnnounceAttribute(tp,1,0xffff - catt)
+	if c:IsFaceup() and c:IsRelateToEffect(e) then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
+		e1:SetCode(EFFECT_CHANGE_ATTRIBUTE)
+		e1:SetValue(att)
+		e1:SetReset(RESET_EVENT+0x1ff0000)
+		c:RegisterEffect(e1)
+	end
+end
+function c99998988.rcop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	Duel.Hint(HINT_SELECTMSG,tp,563)
+	local crc=e:GetHandler():GetRace()
+	local rc=Duel.AnnounceRace(tp,1,0xffffff - crc)
+	if c:IsFaceup() and c:IsRelateToEffect(e) then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
+		e1:SetCode(EFFECT_CHANGE_RACE)
+		e1:SetValue(rc)
+		e1:SetReset(RESET_EVENT+0x1ff0000)
+		c:RegisterEffect(e1)
+	end
+end
+function c99998988.costfilter(c)
+	return c:IsDiscardable() and c:IsType(TYPE_SPELL) 
+end
+function c99998988.bhcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return  Duel.IsExistingMatchingCard(c99998988.costfilter,tp,LOCATION_HAND,0,1,nil) end
+	Duel.DiscardHand(tp,c99998988.costfilter,1,1,REASON_COST+REASON_DISCARD)
+end
+function c99998988.bhtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
+	Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)
+end
+function c99998988.bhop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)
+	local tc=g:GetFirst()
+	while tc do
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_CANNOT_TRIGGER)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e2:SetCode(EFFECT_UPDATE_ATTACK)
+		e2:SetValue(-1000)
+		e2:SetReset(RESET_EVENT+0x1fe0000)
+		tc:RegisterEffect(e2)
+		local e3=e2:Clone()
+		e3:SetCode(EFFECT_UPDATE_DEFENSE)
+		tc:RegisterEffect(e3)
+		local e4=Effect.CreateEffect(c)
+		e4:SetType(EFFECT_TYPE_SINGLE)
+		e4:SetCode(EFFECT_CANNOT_ATTACK)
+		e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e4:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e4)
+		tc=g:GetNext()
+	end
+end
+function c99998988.tg(e,c)
+	return  c:GetCode()~=99998988
+end
+function c99998988.tglimit(e,re,rp)
+	return rp~=e:GetHandlerPlayer() and re:IsActiveType(TYPE_SPELL+TYPE_TRAP+TYPE_MONSTER)
+end

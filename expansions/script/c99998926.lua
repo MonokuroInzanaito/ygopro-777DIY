@@ -1,0 +1,132 @@
+--传说之狂战士 茶茶
+function c99998926.initial_effect(c)
+	 c:EnableReviveLimit()
+	--disable
+	local e1=Effect.CreateEffect(c)
+	e1:SetCategory(CATEGORY_DISABLE)
+	e1:SetDescription(aux.Stringid(99998926,0))
+	e1:SetType(EFFECT_TYPE_QUICK_O)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetHintTiming(0,0x1e0)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetCountLimit(1)
+	e1:SetTarget(c99998926.distg)
+	e1:SetOperation(c99998926.disop)
+	c:RegisterEffect(e1)
+	--
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(99998926,1))
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e2:SetCode(EVENT_PHASE+PHASE_END)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1)
+	e2:SetTarget(c99998926.tg)
+	e2:SetOperation(c99998926.op)
+	c:RegisterEffect(e2)
+	--must attack
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_SINGLE)
+	e3:SetCode(EFFECT_MUST_ATTACK)
+	c:RegisterEffect(e3)
+end
+function c99998926.disfilter(c)
+	return c:IsFaceup()  and c:IsType(TYPE_EFFECT) and not (c:IsDisabled() and c:GetAttack()==0 and c:GetDefense()==0)
+end
+function c99998926.distg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c99998926.disfilter(chkc) and  chkc~=e:GetHandler() end
+	if chk==0 then return Duel.IsExistingTarget(c99998926.disfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,e:GetHandler()) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+	local g=Duel.SelectTarget(tp,c99998926.disfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,e:GetHandler())
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
+
+end
+function c99998926.disop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFirstTarget()
+	local atk=tc:GetAttack()
+	local def=tc:GetDefense()
+	if tc:IsFaceup() and tc:IsRelateToEffect(e)  and not (tc:IsDisabled()
+and  atk==0 and def==0)  then
+		  Duel.NegateRelatedChain(tc,RESET_TURN_SET)
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_DISABLE)
+		e1:SetReset(RESET_EVENT+0x1fe0000)
+		tc:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(e:GetHandler())
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetCode(EFFECT_DISABLE_EFFECT)
+		e2:SetValue(RESET_TURN_SET)
+		e2:SetReset(RESET_EVENT+0x1fe0000)
+		tc:RegisterEffect(e2)
+		local e3=Effect.CreateEffect(e:GetHandler())
+		e3:SetType(EFFECT_TYPE_SINGLE)
+		e3:SetCode(EFFECT_SET_ATTACK)
+		e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e3:SetValue(0)
+		e3:SetReset(RESET_EVENT+0x1fe0000)
+		tc:RegisterEffect(e3)
+		local e4=e3:Clone()
+		e4:SetCode(EFFECT_SET_DEFENSE)
+		tc:RegisterEffect(e4)
+	   Duel.BreakEffect()
+	   local e5=Effect.CreateEffect(e:GetHandler())
+		e5:SetType(EFFECT_TYPE_SINGLE)
+		e5:SetCode(EFFECT_UPDATE_ATTACK)
+		e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e5:SetValue(atk)
+		e5:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+		 e:GetHandler():RegisterEffect(e5)
+		local e6=e5:Clone()
+		e6:SetValue(def)
+		e6:SetCode(EFFECT_UPDATE_DEFENSE)
+		e:GetHandler():RegisterEffect(e6)
+		e:GetHandler():CopyEffect(tc:GetOriginalCode(), RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,1 )
+	end
+end
+function c99998926.filter(c,e)
+	return c:IsFaceup()  and not c:IsImmuneToEffect(e) and (c:GetAttack()<=800 or c:GetDefense()<=800)
+end
+function c99998926.tg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,e:GetHandler())
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+	if g:IsExists(c99998926.filter,1,nil,e) then
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g:Filter(c99998926.filter,nil,e),g:FilterCount(c99998926.filter,nil,e),0,0)
+end
+end
+function c99998926.op(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,e:GetHandler())
+	if g:GetCount()>0 then
+	local tc=g:GetFirst()
+	while tc do
+		local atk=tc:GetAttack()
+		local def=tc:GetDefense()
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetValue(-800)
+		e1:SetReset(RESET_EVENT+0x1fe0000)
+		tc:RegisterEffect(e1)
+		local e2=e1:Clone()
+		e2:SetValue(-800)
+		e2:SetCode(EFFECT_UPDATE_DEFENSE)
+		tc:RegisterEffect(e2)
+		local e3=Effect.CreateEffect(e:GetHandler())
+		e3:SetType(EFFECT_TYPE_SINGLE)
+		e3:SetCode(EFFECT_UPDATE_LEVEL)
+		e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e3:SetValue(-1)
+		e3:SetReset(RESET_EVENT+0x1fe0000)
+		tc:RegisterEffect(e3)
+		local e4=e3:Clone()
+		e4:SetCode(EFFECT_UPDATE_RANK)
+		tc:RegisterEffect(e4)
+		if (tc:GetAttack()==0 or tc:GetDefense()==0) and atk~=0 and def~=0 then
+		Duel.Destroy(tc,REASON_EFFECT)
+end
+		tc=g:GetNext()
+end
+end
+end
