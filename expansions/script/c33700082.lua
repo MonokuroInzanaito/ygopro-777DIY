@@ -1,27 +1,53 @@
---动物朋友 东之青龙
+--青龙的救济
 function c33700082.initial_effect(c)
-	 c:EnableReviveLimit()
-	--deck check
+	 --Activate
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(33700082,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e1:SetType(EFFECT_TYPE_IGNITION)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetCountLimit(1)
-	e1:SetTarget(c33700082.target)
-	e1:SetOperation(c33700082.operation)
-	c:RegisterEffect(e1)
-   --special summon rule
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	c:RegisterEffect(e1)   
+	--set
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_SPSUMMON_PROC)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e2:SetRange(LOCATION_HAND)
-	e2:SetCondition(c33700082.spcon)
-	e2:SetOperation(c33700082.spop)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCost(c33700082.cost)
+	e2:SetTarget(c33700082.tg)
+	e2:SetOperation(c33700082.op)
 	c:RegisterEffect(e2)
+	--deck check
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(33700082,0))
+	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e3:SetType(EFFECT_TYPE_IGNITION)
+	e3:SetRange(LOCATION_FZONE)
+	e3:SetCountLimit(1)
+	e3:SetCondition(c33700082.spcon)
+	e3:SetTarget(c33700082.sptg)
+	e3:SetOperation(c33700082.spop)
+	c:RegisterEffect(e3)
 end
-function c33700082.target(e,tp,eg,ep,ev,re,r,rp,chk)
+function c33700082.filter(c)
+	return c:IsCode(33700174) and c:IsAbleToRemoveAsCost()
+end
+function c33700082.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(c33700082.filter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,c33700082.filter,tp,LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil)
+	Duel.Remove(g,POS_FACEUP,REASON_COST)
+end
+function c33700082.tg(e,tp,eg,ep,ev,re,r,rp,chk)
+   if chk==0 then return e:GetHandler():IsSSetable() end
+	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,e:GetHandler(),1,0,0)
+end
+function c33700082.op(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+	   Duel.SSet(tp,c)
+	end
+end
+function c33700082.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return not Duel.IsExistingMatchingCard(nil,tp,LOCATION_MZONE,0,1,nil)
+end
+function c33700082.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
    local hg=Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)
 	if chk==0 then 
 		if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<hg then return false end
@@ -35,8 +61,9 @@ end
 function c33700082.tfilter(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
-function c33700082.operation(e,tp,eg,ep,ev,re,r,rp)
-	local hg=Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)
+function c33700082.spop(e,tp,eg,ep,ev,re,r,rp)
+	if not e:GetHandler():IsRelateToEffect(e) then return end
+   local hg=Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)
 	Duel.ConfirmDecktop(tp,hg)
 	local g=Duel.GetDecktopGroup(tp,hg)
 	if g:GetCount()>0 then
@@ -51,22 +78,7 @@ function c33700082.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ShuffleDeck(tp)
    else 
 	  Duel.DisableShuffleCheck()
+	  Duel.Destroy(e:GetHandler(),REASON_EFFECT)
    end
 end
-end
-function c33700082.confilter(c)
-	return c:IsSetCard(0x442) and c:IsFaceup() and c:IsAbleToGraveAsCost()
-   and c:IsSummonableCard()
-end
-function c33700082.spcon(e,c)
-	if c==nil then return true end
-	local tp=c:GetControler()
-	local mg=Duel.GetMatchingGroup(c33700082.confilter,tp,LOCATION_MZONE,0,nil)
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>-4
-		and mg:CheckWithSumEqual(Card.GetLevel,4,1,5,c)
-end
-function c33700082.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	local mg=Duel.GetMatchingGroup(c33700082.confilter,tp,LOCATION_MZONE,0,nil)
-	local g=mg:SelectWithSumEqual(tp,Card.GetLevel,4,1,5,nil)
-	Duel.SendtoGrave(g,REASON_COST)
 end

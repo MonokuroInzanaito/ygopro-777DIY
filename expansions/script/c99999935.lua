@@ -1,7 +1,5 @@
 --传说之狂战士 赫拉克勒斯
 function c99999935.initial_effect(c)
-	  --pendulum summon
-	aux.EnablePendulumAttribute(c)
 	--synchro summon
 	aux.AddSynchroProcedure(c,aux.FilterBoolFunction(c99999935.synfilter),aux.NonTuner(nil),1)
 	c:EnableReviveLimit()
@@ -17,8 +15,7 @@ function c99999935.initial_effect(c)
 	e1:SetOperation(c99999935.spop)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
-	e2:SetCode(EVENT_TO_DECK)
-	e2:SetCondition(c99999935.condition)
+	e2:SetCode(EVENT_REMOVE)
 	c:RegisterEffect(e2)
 	--must attack
 	local e3=Effect.CreateEffect(c)
@@ -52,9 +49,6 @@ function c99999935.spop(e,tp,eg,ep,ev,re,r,rp)
 	if c:IsRelateToEffect(e) then 
 	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
 	end
-end
-function c99999935.condition(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsFaceup()
 end
 function c99999935.becon(e)
 	return e:GetHandler():IsAttackable()
