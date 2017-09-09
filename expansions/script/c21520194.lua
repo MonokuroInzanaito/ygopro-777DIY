@@ -15,10 +15,10 @@ function c21520194.initial_effect(c)
 	e2:SetCode(EFFECT_SYNCHRO_LEVEL)
 	e2:SetValue(c21520194.lvval)
 	c:RegisterEffect(e2)
-	--synchro
+	--to hand
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(21520194,0))
-	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_DECKDES)
+	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e3:SetCondition(c21520194.thcon)
@@ -47,7 +47,10 @@ function c21520194.spcon(e,c)
 		and not Duel.IsExistingMatchingCard(Card.IsType,c:GetControler(),LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil,TYPE_SPELL+TYPE_TRAP)
 end
 function c21520194.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	Duel.Damage(tp,500,REASON_RULE)
+	local code=e:GetHandler():GetCode()
+	local ct=Duel.GetFlagEffect(tp,code)
+	Duel.RegisterFlagEffect(tp,code,RESET_PHASE+PHASE_END,0,1)
+	Duel.Damage(tp,100*2^ct,REASON_RULE)
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
@@ -86,21 +89,16 @@ function c21520194.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 function c21520194.thop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(c21520194.thfilter,tp,LOCATION_DECK,0,nil)
-	if g:GetCount()>0 then 
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local thg=g:Select(tp,1,1,nil)
-		if Duel.SendtoHand(thg,nil,REASON_EFFECT)>0 then
-			Duel.ConfirmCards(1-tp,thg)
-			local atk=thg:GetFirst():GetTextAttack()
-			if atk<0 then atk=0 end
-			local def=thg:GetFirst():GetTextDefense()
-			if def<0 then def=0 end
-			Duel.Damage(tp,atk+def,REASON_RULE)
-			Duel.BreakEffect()
-			Duel.ShuffleDeck(tp)
---			local lv=thg:GetFirst():GetOriginalLevel()
-			Duel.DiscardDeck(tp,1,REASON_EFFECT)
+	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)<=0 then return end
+	Duel.ConfirmDecktop(tp,1)
+	local g=Duel.GetDecktopGroup(tp,1)
+	local tc=g:GetFirst()
+	if tc:IsRace(RACE_AQUA) then 
+		if tc:IsAbleToHand() then
+			Duel.DisableShuffleCheck()
+			if Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then Duel.ShuffleHand(tp) end
 		end
+	else
+		Duel.MoveSequence(tc,1)
 	end
 end

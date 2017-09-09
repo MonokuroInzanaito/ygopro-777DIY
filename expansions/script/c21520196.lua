@@ -15,7 +15,7 @@ function c21520196.initial_effect(c)
 	e2:SetCode(EFFECT_SYNCHRO_LEVEL)
 	e2:SetValue(c21520196.lvval)
 	c:RegisterEffect(e2)
-	--synchro
+	--filter
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(21520196,0))
 	e3:SetCategory(CATEGORY_REMOVE+CATEGORY_RECOVER)
@@ -47,7 +47,10 @@ function c21520196.spcon(e,c)
 		and not Duel.IsExistingMatchingCard(Card.IsType,c:GetControler(),LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil,TYPE_SPELL+TYPE_TRAP)
 end
 function c21520196.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	Duel.Damage(tp,500,REASON_RULE)
+	local code=e:GetHandler():GetCode()
+	local ct=Duel.GetFlagEffect(tp,code)
+	Duel.RegisterFlagEffect(tp,code,RESET_PHASE+PHASE_END,0,1)
+	Duel.Damage(tp,100*2^ct,REASON_RULE)
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
@@ -78,21 +81,25 @@ function c21520196.rcon(e,tp,eg,ep,ev,re,r,rp)
 	local fg=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,0,nil)
 	return g:GetCount()==fg:GetCount() and g:GetCount()==fg:FilterCount(Card.IsAttribute,nil,ATTRIBUTE_WATER)
 end
-function c21520196.rilter(c)
-	return not (c:IsAttribute(ATTRIBUTE_WATER) and c:IsType(TYPE_MONSTER)) and c:IsAbleToRemove()
+function c21520196.rfilter(c)
+	return c:IsSetCard(0x496) and c:IsFaceup()
 end
 function c21520196.rtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c21520196.rilter,tp,LOCATION_GRAVE+LOCATION_DECK,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,LOCATION_GRAVE+LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_GRAVE)
 end
 function c21520196.rop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetFieldGroup(tp,LOCATION_GRAVE+LOCATION_DECK,0)
+	local g=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,LOCATION_GRAVE+LOCATION_DECK,0,nil)
+	local ct=Duel.GetMatchingGroupCount(c21520196.rfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
 	if g:GetCount()>0 then 
-		local rg=g:Filter(c21520196.rilter,nil)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+		local rg=g:Select(tp,1,ct,nil)
 		if Duel.Remove(rg,POS_FACEUP,REASON_EFFECT)>0 then
 			local og=Duel.GetOperatedGroup()
-			Duel.ConfirmCards(1-tp,Duel.GetFieldGroup(tp,LOCATION_DECK,0)) 
-			Duel.ShuffleDeck(tp)
+			if og:FilterCount(Card.IsPreviousLocation,nil,LOCATION_DECK)>0 then
+				Duel.ConfirmCards(1-tp,Duel.GetFieldGroup(tp,LOCATION_DECK,0)) 
+				Duel.ShuffleDeck(tp)
+			end
 			Duel.Recover(tp,og:GetCount()*500,REASON_EFFECT)
 		end
 	end
