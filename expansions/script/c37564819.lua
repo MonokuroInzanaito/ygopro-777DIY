@@ -3,7 +3,7 @@ local m=37564819
 local cm=_G["c"..m]
 xpcall(function() require("expansions/script/c37564765") end,function() require("script/c37564765") end)
 function cm.initial_effect(c)
-	Senya.CommonEffect_3L(c,m)
+	--Senya.CommonEffect_3L(c,m)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(m,0))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
@@ -24,7 +24,7 @@ function cm.effect_operation_3L(c,ctlm)
 end
 function cm.flimit(gc)
 	return function(tp,g,fc)
-		return not g:IsExists(Senya.NOT(Senya.check_set_3L),1,gc)
+		return not g:IsExists(Senya.NOT(Senya.check_fusion_set_3L),1,gc)
 	end
 end
 function cm.fcheck(c,m,gc,chkf)
