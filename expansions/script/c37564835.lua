@@ -3,7 +3,7 @@ local m=37564835
 local cm=_G["c"..m]
 xpcall(function() require("expansions/script/c37564765") end,function() require("script/c37564765") end)
 function cm.initial_effect(c)
-	Senya.CommonEffect_3L(c,m)
+	--Senya.CommonEffect_3L(c,m)
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_DRAW)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
@@ -117,10 +117,9 @@ function cm.DiscardHandCost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(g,REASON_COST)
 end
 function cm.cfilter(c,tp)
-	local ty=c:GetSummonType()
 	if c:GetSummonPlayer()==tp or c:GetMaterialCount()<=0 then return false end
-	for i,tty in pairs({SUMMON_TYPE_FUSION+SUMMON_TYPE_SYNCHRO+SUMMON_TYPE_XYZ+SUMMON_TYPE_LINK}) do
-		if bit.band(ty,tty)==tty then return true end
+	for i,tty in pairs({SUMMON_TYPE_FUSION,SUMMON_TYPE_SYNCHRO,SUMMON_TYPE_XYZ,SUMMON_TYPE_LINK}) do
+		if c:IsSummonType(tty) then return true end
 	end
 	return false
 end

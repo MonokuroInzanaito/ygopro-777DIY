@@ -37,6 +37,9 @@ if not Duel.GetLocationCountFromEx then
 		end
 		return effect_set_range(e,r)
 	end
+	function Card.IsSummonType(c,t)
+		return bit.band(c:GetSummonType(),t)==t
+	end
 end
 function cm.DescriptionInNanahira(id)
 	id=id or 0
@@ -1724,7 +1727,7 @@ function cm.HoldGroupFilter(c,mg)
 end
 --3L fusion monster, c=card, m=code
 --exf=extra function
-function cm.Fusion_3L(c,mf,f,min,max,myon)
+function cm.Fusion_3L(c,mf,f,min,max,myon,sub)
 	cm.enable_kaguya_check_3L()
 	if c:IsStatus(STATUS_COPYING_EFFECT) then return end
 	c:EnableReviveLimit()
@@ -1732,67 +1735,73 @@ function cm.Fusion_3L(c,mf,f,min,max,myon)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetCode(EFFECT_FUSION_MATERIAL)
-	e1:SetCondition(cm.FusionCondition_3L(mf,f,min,max,myon))
-	e1:SetOperation(cm.FusionOperation_3L(mf,f,min,max,myon))
+	e1:SetCondition(cm.FusionCondition_3L(mf,f,min,max,myon,sub))
+	e1:SetOperation(cm.FusionOperation_3L(mf,f,min,max,myon,sub))
 	c:RegisterEffect(e1)
 end
-function cm.MyonCheckFilter(c,ec,chkfnf,myon)
+function cm.MyonCheckFilter(c,ec,myon)
 	return (c:IsHasEffect(37564841) or myon) and c:IsFaceup() and c:IsCanBeFusionMaterial(ec)
 end
-function cm.FusionFilter_3L(c,fc,mf)
-	return c:IsCanBeFusionMaterial(fc) and not c:IsHasEffect(6205579) and ((not mf or mf(c)) or c:IsHasEffect(37564914))
+function cm.FusionFilter_3L(c,fc,mf,sub)
+	return c:IsCanBeFusionMaterial(fc) and not c:IsHasEffect(6205579) and ((not mf or mf(c,fc,sub)) or c:IsHasEffect(37564914))
 end
-function cm.FusionCheck_3L(g,min,tp,fc,f,chkf)
+function cm.FusionCheck_3L(g,min,tp,fc,f,chkf,sub)
 		--check sayuri_3L
+	if not Senya.master_rule_3_flag and g:IsExists(aux.FCheckTuneMagicianX,1,nil,g) then return false end
 	if chkf~=PLAYER_NONE and Duel.GetLocationCountFromEx(chkf,tp,g,fc)<=0 then return false end
 	if aux.FCheckAdditional and not aux.FCheckAdditional(tp,g,fc) then return false end
 	local ct=g:GetCount()
 	if ct==1 and fc:GetLevel()==7 and g:GetFirst():IsHasEffect(37564914) then return true end
-	return ct>=min and (not f or f(g,fc))
+	return ct>=min and (not f or f(g,fc,sub))
 end
-function cm.FusionCondition_3L(mf,f,min,max,myon)
+function cm.FusionCondition_3L(mf,f,min,max,myon,sub)
 return function(e,g,gc,chkfnf)
 	if g==nil then return true end
 	local c=e:GetHandler()
 	local chkf=bit.band(chkfnf,0xff)
-	local mg=g:Filter(cm.FusionFilter_3L,nil,e:GetHandler(),mf)
+	local mg=g:Filter(cm.FusionFilter_3L,nil,e:GetHandler(),mf,sub)
 	local tp=e:GetHandlerPlayer()
 	local sg=Group.CreateGroup()
 	if gc then
-		if not cm.FusionFilter_3L(gc,fc,mf) then return false end
+		if not cm.FusionFilter_3L(gc,fc,mf,sub) then return false end
 		sg:AddCard(gc)
 	end
-	local exg=Duel.GetMatchingGroup(cm.MyonCheckFilter,tp,0,LOCATION_MZONE,nil,c,chkf,myon)
+	local exg=Duel.GetMatchingGroup(cm.MyonCheckFilter,tp,0,LOCATION_MZONE,nil,c,myon)
 	mg:Merge(exg)
-	return cm.CheckGroup(mg,cm.FusionCheck_3L,sg,1,max,min,tp,c,f,chkfnf)
+	return cm.CheckGroup(mg,cm.FusionCheck_3L,sg,1,max,min,tp,c,f,chkfnf,sub)
 end
 end
-function cm.FusionOperation_3L(mf,f,min,max,myon)
+function cm.FusionOperation_3L(mf,f,min,max,myon,sub)
 return function(e,tp,eg,ep,ev,re,r,rp,gc,chkfnf)
 	local c=e:GetHandler()
 	local chkf=bit.band(chkfnf,0xff)
-	local mg=eg:Filter(cm.FusionFilter_3L,nil,e:GetHandler(),mf)
+	local mg=eg:Filter(cm.FusionFilter_3L,nil,e:GetHandler(),mf,sub)
 	local sg=Group.CreateGroup()
 	if gc then sg:AddCard(gc) end
-	local exg=Duel.GetMatchingGroup(cm.MyonCheckFilter,tp,0,LOCATION_MZONE,nil,c,chkf,myon)
+	local exg=Duel.GetMatchingGroup(cm.MyonCheckFilter,tp,0,LOCATION_MZONE,nil,c,myon)
 	mg:Merge(exg)
-	local g=cm.SelectGroup(tp,HINTMSG_FMATERIAL,mg,cm.FusionCheck_3L,sg,1,max,min,tp,c,f,chkf)
+	local g=cm.SelectGroup(tp,HINTMSG_FMATERIAL,mg,cm.FusionCheck_3L,sg,1,max,min,tp,c,f,chkf,sub)
 	Duel.SetFusionMaterial(g)
 end
 end
-function cm.GroupFilterMultiCheck(c,g,list,ct)
+function cm.GroupFilterMultiCheck(c,g,list,ct,fc,sub)
 	local f=list[ct]
-	if not f(c) then return false end
+	if not f(c,fc,sub) then return false end
 	if ct==#list then return true end
+	local res=false
 	g:RemoveCard(c)
-	local res=g:IsExists(cm.GroupFilterMultiCheck,1,nil,g,list,ct+1)
+	if sub and f(c,fc,false) then
+		res=g:IsExists(cm.GroupFilterMultiCheck,1,nil,g,list,ct+1,fc,true)
+	else
+		res=g:IsExists(cm.GroupFilterMultiCheck,1,nil,g,list,ct+1,fc,false)
+	end
 	g:AddCard(c)
 	return res
 end
 function cm.GroupFilterMulti(...)
 	local list={...}
-	return function(g)
-		return g:IsExists(cm.GroupFilterMultiCheck,1,nil,g,list,1)
+	return function(g,fc,sub)
+		return g:IsExists(cm.GroupFilterMultiCheck,1,nil,g,list,1,fc,sub)
 	end
 end
 function cm.AttributeReplace_3L(att)
@@ -1805,12 +1814,23 @@ function cm.Fusion_3L_Attribute(c,mt)
 	local f2=cm.AttributeReplace_3L(mt.fusion_att_3L)
 	return cm.Fusion_3L(c,cm.OR(f1,f2),cm.GroupFilterMulti(f1,f2),2,2)
 end
+function cm.GainEffectFilter(c,fc)
+	if not c.effect_operation_3L then return false end
+	local con=c.effect_condition_3L
+	if con and not con(c,fc) then return false end
+	return true
+end
+function cm.FusionGainFilter(c)
+	local t=cm.gain_effect_list_3L[c]
+	return c:IsSummonType(SUMMON_TYPE_FUSION) and t and c:GetFlagEffect(37564848)==0
+end
 function cm.enable_kaguya_check_3L()
 	if cm.kaguya_check_3L then return end
 	cm.kaguya_check_3L={}
 	cm.previous_chain_info={}
 	cm.kaguya_check_3L[0]=0
 	cm.kaguya_check_3L[1]=0
+	cm.gain_effect_list_3L={}
 	local e1=Effect.GlobalEffect()
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_CHAINING)
@@ -1833,6 +1853,47 @@ function cm.enable_kaguya_check_3L()
 		cm.kaguya_check_3L[1]=0
 	end)
 	Duel.RegisterEffect(e2,0)
+	local ge1=Effect.GlobalEffect()
+	ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	ge1:SetCode(EVENT_SPSUMMON_SUCCESS)
+	ge1:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+		return eg:IsExists(cm.FusionGainFilter,1,nil)
+	end)
+	ge1:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+		local g=eg:Filter(cm.FusionGainFilter,nil)
+		for tc in aux.Next(g) do
+			local t=cm.gain_effect_list_3L[tc]
+			for code,v in pairs(t) do
+				cm.GainEffect_3L(tc,code)
+			end
+			if not tc:IsType(TYPE_EFFECT) then
+				local e2=Effect.CreateEffect(tc)
+				e2:SetType(EFFECT_TYPE_SINGLE)
+				e2:SetCode(EFFECT_ADD_TYPE)
+				e2:SetValue(TYPE_EFFECT)
+				e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+				e2:SetReset(RESET_EVENT+0x1fe0000)
+				tc:RegisterEffect(e2,true)
+			end
+		end
+	end)
+	Duel.RegisterEffect(ge1,0)
+	local ge3=Effect.GlobalEffect()
+	ge3:SetType(EFFECT_TYPE_FIELD)
+	ge3:SetCode(EFFECT_MATERIAL_CHECK)
+	ge3:SetProperty(EFFECT_FLAG_IGNORE_RANGE)
+	ge3:SetTargetRange(0xff,0xff)
+	ge3:SetValue(function(e,c)
+		if c:IsType(TYPE_FUSION) and cm.check_set_3L(c) then
+			local g=c:GetMaterial():Filter(cm.GainEffectFilter,nil,c)
+			local t={}
+			for tc in aux.Next(g) do
+				t[tc:GetOriginalCode()]=true
+			end
+			cm.gain_effect_list_3L[c]=t
+		end
+	end)
+	Duel.RegisterEffect(ge3,0)
 end
 function cm.CheckKoishiCount(c)
 	if Card.FilterEffect then
@@ -1845,33 +1906,6 @@ function cm.CheckKoishiCount(c)
 	else
 		return c.custom_ctlm_3L or 1
 	end
-end
-function cm.CommonEffect_3L(c,m,con)
-	cm.enable_kaguya_check_3L()
-	--cm.setreg(c,m,37564800)
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e2:SetCode(EVENT_BE_MATERIAL)
-	e2:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
-		local rc=e:GetHandler():GetReasonCard()
-		return bit.band(r,REASON_FUSION)~=0 and (not con or con(e,tp,eg,ep,ev,re,r,rp)) and cm.check_set_3L(rc) and rc:GetFlagEffect(37564848)==0
-	end)
-	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
-		local rc=e:GetHandler():GetReasonCard()
-		cm.GainEffect_3L(rc,e:GetHandler())
-		if not rc:IsType(TYPE_EFFECT) then
-			local e2=Effect.CreateEffect(e:GetHandler())
-			e2:SetType(EFFECT_TYPE_SINGLE)
-			e2:SetCode(EFFECT_ADD_TYPE)
-			e2:SetValue(TYPE_EFFECT)
-			e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e2:SetReset(RESET_EVENT+0x1fe0000)
-			rc:RegisterEffect(e2,true)
-		end
-	end)
-	c:RegisterEffect(e2)
-	return e2
 end
 --filter for effect gaining
 --chkc=card to check if it can gain c's effect, nil for not checking
@@ -1978,7 +2012,7 @@ function cm.RemoveEffect_3L(tp,tc,ct,maxct,chk,...)
 	local avaliable_list={}
 	local omit_list={...}
 	if Card.FilterEffect then
-		local oet=tc:FilterEffect(37564827)
+		local oet={tc:FilterEffect(37564827)}
 		for i,oe in pairs(oet) do
 			local of=cm.order_table[oe:GetValue()]
 			local og=of(tc)
@@ -2125,14 +2159,14 @@ function cm.PreExile(c)
 end
 function cm.ExileCard(c)
 	cm.PreExile(c)
-	Duel.SendtoDeck(c,nil,-1,REASON_RULE)
+	Duel.Exile(c,REASON_RULE)
 	c:ResetEffect(0xfff0000,RESET_EVENT)
 end
 function cm.ExileGroup(g)
 	for c in aux.Next(g) do
 		cm.PreExile(c)
 	end
-	Duel.SendtoDeck(g,nil,-1,REASON_RULE)
+	Duel.Exile(g,REASON_RULE)
 	for c in aux.Next(g) do
 		c:ResetEffect(0xfff0000,RESET_EVENT)
 	end
@@ -2480,4 +2514,36 @@ function cm.AddSummonMusic(c,desc,stype)
 	local e3=e1:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
+end
+function cm.IgnoreActionCheck(f,...)
+	Duel.DisableActionCheck(true)
+	local cr=coroutine.create(f)
+	local ret={}
+	while coroutine.status(cr)~="dead" do
+		local sret={coroutine.resume(cr,...)}
+		for i=2,#sret do
+			table.insert(ret,sret[i])
+		end
+	end
+	Duel.DisableActionCheck(false)
+	return table.unpack(ret)
+end
+--no front side common effects
+function cm.DFCBackSideCommonEffect(c)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCode(EVENT_ADJUST)
+	e2:SetRange(LOCATION_DECK+LOCATION_GRAVE+LOCATION_REMOVED+LOCATION_HAND+LOCATION_EXTRA)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
+		return c.dfc_front_side and c:GetOriginalCode()==c.dfc_back_side
+	end)
+	e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+		local tcode=c.dfc_front_side
+		c:SetEntityCode(tcode)
+		Duel.ConfirmCards(tp,Group.FromCards(c))
+		Duel.ConfirmCards(1-tp,Group.FromCards(c))
+		c:ReplaceEffect(tcode,0,0)
+	end)
+	c:RegisterEffect(e2)	
 end
