@@ -6,13 +6,7 @@ cm.Senya_desc_with_nanahira=true
 function cm.initial_effect(c)
 	Senya.Nanahira(c)
 	c:EnableReviveLimit()
-	aux.AddLinkProcedure(c,aux.FilterBoolFunction(Card.IsCode,37564765),2,3)
-	local ex=Effect.CreateEffect(c)
-	ex:SetType(EFFECT_TYPE_SINGLE)
-	ex:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	ex:SetCode(EFFECT_SPSUMMON_CONDITION)
-	ex:SetValue(cm.splimit)
-	c:RegisterEffect(ex)
+	aux.AddLinkProcedure(c,aux.FilterBoolFunction(Card.IsCode,37564765),2,2)
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
@@ -34,13 +28,6 @@ function cm.initial_effect(c)
 	e1:SetOperation(cm.operation1)
 	c:RegisterEffect(e1)
 end
-function cm.splimit(e,se,sp,st)
-	return bit.band(st,SUMMON_TYPE_LINK)==SUMMON_TYPE_LINK
-end
---[[function cm.val(c)
-	if c:GetOriginalCode()==37564765 then return 2 end
-	return 1
-end]]
 function cm.traptarget(e,c)
 	local ec=e:GetHandler()
 	local seq=c:GetSequence()
