@@ -74,7 +74,7 @@ function c10173009.tdop(e,tp,eg,ep,ev,re,r,rp)
 	if c:IsRelateToEffect(e) and Duel.SendtoDeck(c,nil,2,REASON_EFFECT) then
 	   Duel.ShuffleDeck(tp)
 	   Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-	   local g=Duel.SelectMatchingCard(tp,c10173009.eqfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil)
+	   local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(c10173009.eqfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil)
 	   if g:GetCount()>0 then
 		  Duel.SendtoHand(g,nil,REASON_EFFECT)
 		  Duel.ConfirmCards(1-tp,g)

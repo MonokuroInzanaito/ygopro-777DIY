@@ -25,11 +25,14 @@ function c10113076.initial_effect(c)
 	e3:SetOperation(c10113076.tdop)
 	c:RegisterEffect(e3)	 
 end
-function c10113076.filter1(c,e,tp,mg)
-	return Duel.IsExistingMatchingCard(c10113076.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,Group.FromCards(c,e:GetHandler()))
+function c10113076.filter1(c,e,tp,chkf)
+	return Duel.IsExistingMatchingCard(c10113076.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,c,chkf)
 end
-function c10113076.filter2(c,e,tp,mg)
-	return c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(mg,e:GetHandler())
+function c10113076.filter2(c,e,tp,fc)
+	return c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(Group.FromCards(fc,e:GetHandler()),nil,chkf) and fc:IsCanBeFusionMaterial(c) and e:GetHandler():IsCanBeFusionMaterial(c)
+end
+function c10113076.filter3(c,e,tp,chkf)
+	return not c:IsImmuneToEffect(e) and Duel.IsExistingMatchingCard(c10113076.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,c)
 end
 function c10113076.sxfilter(c,mc,tp)
 	return Duel.IsExistingMatchingCard(c10113076.sxfilter2,tp,LOCATION_HAND,0,1,nil,c,mc)
@@ -42,7 +45,8 @@ function c10113076.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c,mg=e:GetHandler(),Duel.GetFusionMaterial(tp):Filter(Card.IsLocation,nil,LOCATION_HAND)
 	if chk==0 then
 		local sel=0
-		if Duel.GetLocationCount(tp,LOCATION_MZONE)>-1 and mg:IsExists(c10113076.filter1,1,nil,e,tp,mg) then sel=sel+1 end
+		local chkf=tp
+		if mg:IsExists(c10113076.filter1,1,nil,e,tp,chkf) then sel=sel+1 end
 		if Duel.IsExistingMatchingCard(c10113076.sxfilter,tp,LOCATION_EXTRA,0,1,nil,c,tp) then sel=sel+2 end
 		e:SetLabel(sel)
 		return sel~=0
@@ -64,23 +68,18 @@ function c10113076.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
 end
-function c10113076.filter3(c,e,tp,mg)
-	return not c:IsImmuneToEffect(e) and mg:IsExists(c10113076.filter4,1,c,e,tp,Group.FromCards(c,e:GetHandler()))
-end
-function c10113076.filter4(c,e,tp,mc)
-	return not c:IsImmuneToEffect(e) and Duel.IsExistingMatchingCard(c10113076.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg)
-end
 function c10113076.spop(e,tp,eg,ep,ev,re,r,rp)
 	local op,c,mg,g1,tc=e:GetLabel(),e:GetHandler()
 	if not c:IsRelateToEffect(e) or Duel.GetLocationCount(tp,LOCATION_MZONE)<0 then return end
 	if op==1 then
+	   local chkf=tp
 	   mg=Duel.GetFusionMaterial(tp):Filter(Card.IsLocation,nil,LOCATION_HAND)
 	   Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-	   g1=mg:FilterSelect(tp,c10113076.filter3,1,1,nil,e,tp,mg)
+	   g1=mg:FilterSelect(tp,c10113076.filter3,1,1,nil,e,tp,chkf)
 	   if g1:GetCount()<=0 then return end
-	   g1:AddCard(c)
 	   Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	   tc=Duel.SelectMatchingCard(tp,c10113076.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,g1):GetFirst()
+	   tc=Duel.SelectMatchingCard(tp,c10113076.filter2,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,g1:GetFirst(),chkf):GetFirst()
+	   g1:AddCard(c)
 	   tc:SetMaterial(g1)
 	   Duel.SendtoGrave(g1,REASON_MATERIAL+REASON_FUSION+REASON_EFFECT)
 	   Duel.BreakEffect()

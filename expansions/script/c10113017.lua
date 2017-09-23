@@ -34,40 +34,45 @@ function c10113017.drop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Draw(p,d,REASON_EFFECT)
 end
 function c10113017.drcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c10113017.cfilter2,tp,LOCATION_REMOVED,0,3,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c10113017.dcfilter,tp,LOCATION_REMOVED,0,2,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local rg=Duel.SelectMatchingCard(tp,c10113017.cfilter,tp,LOCATION_REMOVED,0,3,3,nil)
+	local rg=Duel.SelectMatchingCard(tp,c10113017.dcfilter,tp,LOCATION_REMOVED,0,2,2,nil)
 	Duel.SendtoDeck(rg,nil,2,REASON_COST)
 end
-function c10113017.cfilter2(c)
+function c10113017.dcfilter(c)
 	return c:IsCode(10113017) and c:IsAbleToDeckAsCost() and c:IsFaceup()
 end
 function c10113017.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c10113017.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local rg=Duel.SelectMatchingCard(tp,c10113017.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	Duel.Remove(rg,POS_FACEUP,REASON_COST)
+	e:SetLabel(100)
+	return true
 end
-function c10113017.cfilter(c)
-	return c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
+function c10113017.cfilter(c,e,tp)
+	return c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost() and Duel.IsExistingMatchingCard(c10113017.cfilter2,tp,LOCATION_GRAVE,0,1,c,e,tp,c)
 end
-function c10113017.filter(c,e,sp)
-	return c:IsCode(10113017) and c:IsCanBeSpecialSummoned(e,0,sp,false,false)
+function c10113017.cfilter2(c,e,tp,rc)
+	return c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost() and Duel.IsExistingMatchingCard(c10113017.filter,tp,0x13,0,1,c,e,tp,rc)
+end
+function c10113017.filter(c,e,sp,rc)
+	return c:IsCode(10113017) and c:IsCanBeSpecialSummoned(e,0,sp,false,false) and c~=rc
 end
 function c10113017.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c10113017.filter,tp,LOCATION_DECK+LOCATION_HAND,0,1,nil,e,tp)
-		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK+LOCATION_HAND)
+	if chk==0 then 
+	   e:SetLabel(0)
+	return Duel.IsExistingMatchingCard(c10113017.cfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
+	end
+	e:SetLabel(0)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local rg=Duel.SelectMatchingCard(tp,c10113017.cfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+	local rg2=Duel.SelectMatchingCard(tp,c10113017.cfilter2,tp,LOCATION_GRAVE,0,1,1,rg:GetFirst(),e,tp,rg:GetFirst())
+	rg:Merge(rg2)
+	Duel.Remove(rg,POS_FACEUP,REASON_COST)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,0x13)
 end
 function c10113017.operation(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local sg=Duel.SelectMatchingCard(tp,c10113017.filter,tp,LOCATION_DECK+LOCATION_HAND,0,1,1,nil,e,tp)
+	local sg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(c10113017.filter),tp,0x13,0,1,1,nil,e,tp,nil)
 	if sg:GetCount()>0 then
-		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then
-			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
-		else
-			Duel.Destroy(sg,REASON_EFFECT)
-		end
-		Duel.ShuffleDeck(tp)
+	   Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
