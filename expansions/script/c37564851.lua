@@ -1,7 +1,7 @@
 --3L·终焉之舞
 local m=37564851
 local cm=_G["c"..m]
-xpcall(function() require("expansions/script/c57300000") end,function() require("script/c57300000") end)
+xpcall(function() require("expansions/script/c37564765") end,function() require("script/c37564765") end)
 function cm.initial_effect(c)
 	c:EnableReviveLimit()
 	--Senya.CommonEffect_3L(c,m)
@@ -12,7 +12,7 @@ function cm.initial_effect(c)
 	e0:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e0:SetCondition(function(e,tp,eg,ep,ev,re,r,rp)
 		local c=e:GetHandler()
-		return bit.band(c:GetSummonType(),SUMMON_TYPE_LINK)==SUMMON_TYPE_LINK
+		return c:IsSummonType(SUMMON_TYPE_LINK)
 	end)
 	e0:SetOperation(cm.skipop)
 	c:RegisterEffect(e0)
