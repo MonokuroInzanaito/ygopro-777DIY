@@ -5,6 +5,7 @@ function c66612315.initial_effect(c)
 	e0:SetType(EFFECT_TYPE_ACTIVATE)
 	e0:SetCode(EVENT_FREE_CHAIN)
 	e0:SetCountLimit(1,66612315)
+	e0:SetTarget(c66612315.tg)
 	e0:SetOperation(c66612315.activate)
 	c:RegisterEffect(e0)
 	local e1=Effect.CreateEffect(c)
@@ -21,6 +22,10 @@ end
 function c66612315.filter2(c)
 	return c:IsSetCard(0x660) and c:IsType(TYPE_FUSION) and not c:IsSetCard(0xe660) and c:IsAbleToGrave()
 end
+function c66612315.tg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK+LOCATION_EXTRA)
+end
 function c66612315.activate(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	local t={}
@@ -35,13 +40,13 @@ function c66612315.activate(e,tp,eg,ep,ev,re,r,rp)
 	if opt==0 then sg=Duel.SelectMatchingCard(tp,c66612315.filter1,tp,LOCATION_DECK,0,2,2,nil)
 	if sg:GetCount()>1 then
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-    Duel.SendtoGrave(sg,REASON_EFFECT)
+	Duel.SendtoGrave(sg,REASON_EFFECT)
 	end
 	else 
 	sg=Duel.SelectMatchingCard(tp,c66612315.filter2,tp,LOCATION_EXTRA,0,1,1,nil) end
 	if sg:GetCount()>0 then
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-    Duel.SendtoGrave(sg,REASON_EFFECT)
+	Duel.SendtoGrave(sg,REASON_EFFECT)
 	end
 end
 end
