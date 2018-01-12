@@ -26,7 +26,7 @@ function c21520119.spcon(e,c)
 end
 function c21520119.dcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsReason(REASON_SUMMON) and c:GetReasonCard():IsSetCard(0x9491)
+	return c:IsReason(REASON_SUMMON) and c:GetReasonCard():IsSetCard(0x491)
 end
 function c21520119.dtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,2) end

@@ -25,13 +25,13 @@ function c21520153.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c21520153.tgfilter(c)
-	return c:IsSetCard(0x491) and c:IsAbleToGrave()
+	return c:IsSetCard(0x491) and c:IsAbleToGrave() and c:IsType(TYPE_MONSTER)
 end
 function c21520153.filter(c)
 	return not c:IsSetCard(0x491) and c:IsFaceup() and c:IsType(TYPE_MONSTER)
 end
 function c21520153.filter2(c)
-	return (c:IsSetCard(0x491) or c:IsSetCard(0x492)) and c:IsFaceup() and c:IsType(TYPE_MONSTER)
+	return c:IsSetCard(0x491) and c:IsFaceup() and c:IsType(TYPE_MONSTER)
 end
 function c21520153.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(c21520153.filter2,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil)
@@ -40,20 +40,20 @@ function c21520153.target(e,tp,eg,ep,ev,re,r,rp,chk)
 --	if chkc then return (chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup()) or chkc:IsLocation(LOCATION_GRAVE) end
 	if chk==0 then 
 		local g=Duel.GetMatchingGroup(c21520153.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
-		local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
-		g:Sub(rg)
+--		local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
+--		g:Sub(rg)
 		return g:GetCount()>0 end
 	local g1=Duel.GetMatchingGroup(c21520153.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
-	local rg1=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
-	g1:Sub(rg1)
+--	local rg1=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
+--	g1:Sub(rg1)
 	local ct=g1:GetCount()
 	if ct>3 then ct=3 end
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,ct,0,0)
 end
 function c21520153.operation(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(c21520153.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
-	local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
-	g:Sub(rg)
+--	local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
+--	g:Sub(rg)
 	local ct=g:GetCount()
 	if ct>3 then ct=3 end
 	if ct<=0 or not Duel.IsPlayerCanDraw(tp,ct) then return end

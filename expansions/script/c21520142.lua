@@ -43,7 +43,7 @@ function c21520142.operation(e,tp,eg,ep,ev,re,r,rp)
 		local g=Duel.GetMatchingGroup(c21520142.eqfilter,tp,LOCATION_SZONE,LOCATION_SZONE,nil)
 		local ec=g:GetFirst()
 		while ec do
-			Duel.Equip(tp,ec,tc)
+			Duel.Equip(tp,ec,tc,false,true)
 			ec=g:GetNext()
 		end
 		Duel.EquipComplete()

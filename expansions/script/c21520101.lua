@@ -28,7 +28,7 @@ function c21520101.spcon(e,c)
 		Duel.GetMatchingGroupCount(Card.IsType,c:GetControler(),LOCATION_GRAVE,0,nil,TYPE_MONSTER)==0
 end
 function c21520101.filter(c,e,tp)
-	return not c:IsCode(21520101) and c:IsSetCard(0x3491) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+	return not c:IsCode(21520101) and c:IsSetCard(0x491) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
 end
 function c21520101.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp  

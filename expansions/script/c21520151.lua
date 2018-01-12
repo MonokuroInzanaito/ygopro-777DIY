@@ -53,10 +53,11 @@ function c21520151.initial_effect(c)
 	c:RegisterEffect(e7)
 end
 function c21520151.spfilter1(c)
-	return c:IsSetCard(0x491) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
+--	return (c:IsSetCard(0x3491) or c:IsSetCard(0x6491) or c:IsSetCard(0x9491) or c:IsSetCard(0xc491)) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
+	return (c:IsSetCard(0x491) and not c:IsSetCard(0x5491)) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
 end
 function c21520151.spfilter2(c)
-	return c:IsSetCard(0x492) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
+	return c:IsSetCard(0x5491) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
 end
 function c21520151.spcon(e,c)
 	if c==nil then return true end
@@ -93,8 +94,8 @@ end
 function c21520151.sdcon(e)
 	local tp=e:GetHandlerPlayer()
 	local g=Duel.GetMatchingGroup(c21520151.tgfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
-	local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
-	g:Sub(rg)
+--	local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
+--	g:Sub(rg)
 	return g:GetCount()>0
 end
 function c21520151.repfilter(c)

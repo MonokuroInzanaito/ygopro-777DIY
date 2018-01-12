@@ -4,6 +4,7 @@ function c21520073.initial_effect(c)
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_ACTIVATE)
 	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetCondition(c21520073.actcon)
 	c:RegisterEffect(e0)
 	--special summon
 	local e1=Effect.CreateEffect(c)
@@ -23,6 +24,9 @@ function c21520073.initial_effect(c)
 	e2:SetRange(LOCATION_FZONE)
 	e2:SetOperation(c21520073.chainop)
 	c:RegisterEffect(e2)
+end
+function c21520073.actcon(e,tp,eg,ep,ev,re,r,rp)
+	return not Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_GRAVE,0,1,nil,TYPE_TRAP)
 end
 function c21520073.spfilter(c,e,tp)
 	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsSetCard(0x495)

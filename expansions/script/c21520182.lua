@@ -185,15 +185,15 @@ function c21520182.regop(e,tp,eg,ep,ev,re,r,rp)
 	c:RegisterEffect(de)
 end
 function c21520182.cpfilter(c)
-	return c:IsType(TYPE_EFFECT) and c:IsAbleToRemove() and c:IsFaceup()
+	return c:IsType(TYPE_EFFECT) and c:IsFaceup()
 end
 function c21520182.cptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return c21520182.cpfilter(chkc) end
 	if chk==0 then return Duel.IsExistingTarget(c21520182.cpfilter,tp,LOCATION_GRAVE+LOCATION_MZONE,LOCATION_GRAVE+LOCATION_MZONE,1,e:GetHandler()) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
 	local g1=Duel.SelectTarget(tp,c21520182.cpfilter,tp,LOCATION_GRAVE+LOCATION_MZONE,LOCATION_GRAVE+LOCATION_MZONE,1,1,e:GetHandler())
-	local loc=g1:GetFirst():GetLocation()
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g1,1,tp,loc)
+--	local loc=g1:GetFirst():GetLocation()
+--	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g1,1,tp,loc)
 end
 function c21520182.cpop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -201,7 +201,7 @@ function c21520182.cpop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
 	local tc=g:GetFirst()
 	if tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
-		local e2=Effect.CreateEffect(c)
+--[[		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_DISABLE)
 		e2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
@@ -211,7 +211,7 @@ function c21520182.cpop(e,tp,eg,ep,ev,re,r,rp)
 		e3:SetCode(EFFECT_DISABLE_EFFECT)
 		e3:SetValue(RESET_TURN_SET)
 		e3:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e3)
+		tc:RegisterEffect(e3)--]]
 		local code=tc:GetOriginalCode()
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
@@ -221,7 +221,7 @@ function c21520182.cpop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(code)
 		c:RegisterEffect(e1)
 		c:CopyEffect(code,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,1)
-		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
+--		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
 	end
 end
 function c21520182.drcon(e,tp,eg,ep,ev,re,r,rp)

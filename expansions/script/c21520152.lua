@@ -46,6 +46,8 @@ function c21520152.initial_effect(c)
 	c:RegisterEffect(e6)
 	--negate
 	local e7=Effect.CreateEffect(c)
+	e7:SetDescription(aux.Stringid(21520152,0))
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e7:SetCategory(CATEGORY_NEGATE)
 	e7:SetType(EFFECT_TYPE_QUICK_O)
 	e7:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
@@ -58,10 +60,10 @@ function c21520152.initial_effect(c)
 	c:RegisterEffect(e7)
 end
 function c21520152.spfilter1(c)
-	return c:IsSetCard(0x491) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
+	return (c:IsSetCard(0x491) and not c:IsSetCard(0x5491)) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
 end
 function c21520152.spfilter2(c)
-	return c:IsSetCard(0x492) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
+	return c:IsSetCard(0x5491) and (not c:IsOnField() or c:IsFaceup()) and c:IsType(TYPE_MONSTER)
 end
 function c21520152.spcon(e,c)
 	if c==nil then return true end
@@ -98,8 +100,8 @@ end
 function c21520152.sdcon(e)
 	local tp=e:GetHandlerPlayer()
 	local g=Duel.GetMatchingGroup(c21520152.tgfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
-	local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
-	g:Sub(rg)
+--	local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
+--	g:Sub(rg)
 	return g:GetCount()>0
 end
 function c21520152.rpfilter(c)

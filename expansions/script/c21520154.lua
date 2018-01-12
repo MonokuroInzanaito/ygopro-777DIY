@@ -32,8 +32,8 @@ end
 function c21520154.handcon(e)
 	local tp=e:GetHandlerPlayer()
 	local g=Duel.GetMatchingGroup(c21520154.filter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil)
-	local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
-	g:Sub(rg)
+--	local rg=Duel.GetMatchingGroup(Card.IsSetCard,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,0x492)
+--	g:Sub(rg)
 	return Duel.IsExistingMatchingCard(Card.IsCode,tp,LOCATION_ONFIELD,0,1,nil,21520133)
 		or (not g or g:GetCount()==0)
 end

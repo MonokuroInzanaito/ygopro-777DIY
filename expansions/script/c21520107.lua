@@ -14,7 +14,7 @@ function c21520107.initial_effect(c)
 	--random hand destruction & damage
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(21520107,1))
-	e2:SetCategory(CATEGORY_HANDES)
+	e2:SetCategory(CATEGORY_HANDES+CATEGORY_DAMAGE)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e2:SetRange(LOCATION_MZONE)
@@ -53,6 +53,7 @@ end
 function c21520107.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetFieldGroupCount(tp,0,LOCATION_HAND)>0 end
 	Duel.SetOperationInfo(0,CATEGORY_HANDES,0,0,1-tp,1)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,0,0,1-tp,500)
 end
 function c21520107.desop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetFieldGroup(tp,0,LOCATION_HAND,nil)

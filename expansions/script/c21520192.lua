@@ -47,7 +47,7 @@ function c21520192.spcon(e,c)
 		and Duel.GetCustomActivityCount(21520192,tp,ACTIVITY_SPSUMMON)~=0 
 		then return false end
 	return not Duel.IsExistingMatchingCard(c21520192.spfilter,c:GetControler(),LOCATION_MZONE+LOCATION_GRAVE,0,1,nil)
-		and not Duel.IsExistingMatchingCard(Card.IsType,c:GetControler(),LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil,TYPE_SPELL+TYPE_TRAP)
+		and not Duel.IsExistingMatchingCard(Card.IsType,c:GetControler(),LOCATION_GRAVE,0,1,nil,TYPE_SPELL+TYPE_TRAP)
 end
 function c21520192.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	local code=e:GetHandler():GetCode()
@@ -88,24 +88,22 @@ function c21520192.mfilter(c)
 	return c:IsAttribute(ATTRIBUTE_WATER)
 end
 function c21520192.sctg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_HAND,0)>0 end
+	if chk==0 then return true end
 end
 function c21520192.scop(e,tp,eg,ep,ev,re,r,rp)
 	local hg=Duel.GetMatchingGroup(c21520192.mfilter,tp,LOCATION_HAND,0,nil)
 	if hg:GetCount()<=0 then return end
-	if hg:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(21520192,1)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
-		local mg=hg:Select(tp,1,4,nil)
-		Duel.ConfirmCards(1-tp,mg)
-		local ct=mg:GetCount()
-		mg:AddCard(e:GetHandler())
-		local g=Duel.GetMatchingGroup(Card.IsSynchroSummonable,tp,LOCATION_EXTRA,0,nil,nil,mg)
-		if g:GetCount()>0 then
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			local sg=g:Select(tp,1,1,nil)
-			Duel.SynchroSummon(tp,sg:GetFirst(),nil,mg)
-		else
-			Duel.Damage(tp,ct*1000,REASON_RULE)
-		end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
+	local mg=hg:Select(tp,1,4,nil)
+	Duel.ConfirmCards(1-tp,mg)
+	local ct=mg:GetCount()
+	mg:AddCard(e:GetHandler())
+	local g=Duel.GetMatchingGroup(Card.IsSynchroSummonable,tp,LOCATION_EXTRA,0,nil,nil,mg)
+	if g:GetCount()>0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local sg=g:Select(tp,1,1,nil)
+		Duel.SynchroSummon(tp,sg:GetFirst(),nil,mg)
+	else
+		Duel.Damage(tp,ct*1000,REASON_RULE)
 	end
 end

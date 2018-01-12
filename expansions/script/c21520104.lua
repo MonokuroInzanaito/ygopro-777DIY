@@ -26,7 +26,8 @@ end
 function c21520104.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsReleasable() end
 	Duel.Release(e:GetHandler(),REASON_COST)
-	Duel.RegisterFlagEffect(tp,21520104,RESET_EVENT+0x7b0000+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,0,2)
+--	Duel.RegisterFlagEffect(tp,21520104,RESET_EVENT+0x7b0000+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,0,2)
+	e:GetHandler():RegisterFlagEffect(21520104,RESET_EVENT+0x17b0000+RESET_PHASE+PHASE_STANDBY+RESET_SELF_TURN,0,1)
 end
 function c21520104.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -36,14 +37,14 @@ function c21520104.operation(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Damage(1-tp,1200,REASON_EFFECT)
 end
 function c21520104.filter(c)
-	return c:IsSetCard(0x3491) and c:IsFaceup() and c:IsType(TYPE_MONSTER)
+	return c:IsSetCard(0x491) and c:IsFaceup() and c:IsType(TYPE_MONSTER)
 end
 function c21520104.sumcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(c21520103.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) and Duel.GetFlagEffect(tp,21520104)>0 and tp==Duel.GetTurnPlayer()
+	return Duel.IsExistingMatchingCard(c21520104.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) and e:GetHandler():GetFlagEffect(21520104)>0 and tp==Duel.GetTurnPlayer()
 end
 function c21520104.sumtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.GetFlagEffect(tp,21520104)>0
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and e:GetHandler():GetFlagEffect(21520104)>0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end

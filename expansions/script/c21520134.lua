@@ -2,6 +2,7 @@
 function c21520134.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(21520134,0))
 	e1:SetCategory(CATEGORY_ATKCHANGE)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
@@ -9,9 +10,18 @@ function c21520134.initial_effect(c)
 	e1:SetTarget(c21520134.target)
 	e1:SetOperation(c21520134.activate)
 	c:RegisterEffect(e1)
+	--destroy
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(21520134,1))
+	e2:SetCategory(CATEGORY_DESTROY)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCost(c21520134.dcost)
+	e2:SetOperation(c21520134.dop)
+	c:RegisterEffect(e2)
 end
 function c21520134.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0x491)
+	return c:IsFaceup() and c:IsSetCard(0x491) and c:IsType(TYPE_MONSTER)
 end
 function c21520134.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c21520134.filter(chkc) end
@@ -40,4 +50,19 @@ function c21520134.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 function c21520134.desop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Destroy(e:GetHandler(),REASON_EFFECT)
+end
+function c21520134.dcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
+	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
+end
+function c21520134.dfilter(c)
+	return c:IsSetCard(0x491) and c:IsType(TYPE_MONSTER)
+end
+function c21520134.dop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(dfilter,tp,LOCATION_DECK,0,nil)
+	if g and g:GetCount()>0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+		local sg=g:Select(tp,1,1,nil)
+		Duel.Destroy(sg,REASON_EFFECT)
+	end
 end

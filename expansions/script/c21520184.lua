@@ -2,15 +2,6 @@
 function c21520184.initial_effect(c)
 	--pendulum summon
 	aux.EnablePendulumAttribute(c)
-	--splimit
-	local pe1=Effect.CreateEffect(c)
-	pe1:SetType(EFFECT_TYPE_FIELD)
-	pe1:SetRange(LOCATION_PZONE)
-	pe1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	pe1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
-	pe1:SetTargetRange(1,0)
-	pe1:SetTarget(c21520184.splimit)
-	c:RegisterEffect(pe1)
 	--def
 	local pe1=Effect.CreateEffect(c)
 	pe1:SetType(EFFECT_TYPE_FIELD)
@@ -56,10 +47,6 @@ function c21520184.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
-end
-function c21520184.splimit(e,c,sump,sumtype,sumpos,targetp)
-	if c:IsSetCard(0x490) then return false end
-	return bit.band(sumtype,SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
 function c21520184.deftg(e,c)
 	return c:IsSetCard(0x490) and c:IsFaceup()

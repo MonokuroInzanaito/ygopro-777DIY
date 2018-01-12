@@ -25,7 +25,7 @@ function c21520110.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c21520110.filter(c)
-	return c:IsSetCard(0x6491) and c:IsFaceup()
+	return c:IsSetCard(0x491) and c:IsFaceup()
 end
 function c21520110.ntcon(e,c,minc)
 	if c==nil then return true end

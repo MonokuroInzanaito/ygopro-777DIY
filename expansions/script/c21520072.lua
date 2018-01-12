@@ -4,6 +4,7 @@ function c21520072.initial_effect(c)
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_ACTIVATE)
 	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetCondition(c21520072.actcon)
 	c:RegisterEffect(e0)
 	--special summon
 	local e1=Effect.CreateEffect(c)
@@ -31,6 +32,9 @@ function c21520072.initial_effect(c)
 	e2_1:SetTarget(c21520072.effectfilter2)
 	c:RegisterEffect(e2_1)
 end
+function c21520072.actcon(e,tp,eg,ep,ev,re,r,rp)
+	return not Duel.IsExistingMatchingCard(Card.IsType,tp,LOCATION_GRAVE,0,1,nil,TYPE_TRAP)
+end
 function c21520072.thfilter(c)
 	return c:IsAbleToHand() and c:IsSetCard(0x495) and c:IsFaceup()
 end
@@ -50,8 +54,8 @@ function c21520072.thop(e,tp,eg,ep,ev,re,r,rp)
 		local osg=opg:Select(tp,1,1,nil)
 		Duel.SendtoHand(sg,nil,REASON_EFFECT)
 		Duel.SendtoHand(osg,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,sg)
-		Duel.ConfirmCards(tp,osg)
+--		Duel.ConfirmCards(1-tp,sg)
+--		Duel.ConfirmCards(tp,osg)
 	end
 end
 function c21520072.effectfilter(e,ct)

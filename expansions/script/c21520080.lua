@@ -89,9 +89,10 @@ function c21520080.rfilter2(c,e,tp,m,f,chkf)
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) and c:CheckFusionMaterial(m,nil,chkf)
 end
 function c21520080.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToHandAsCost() end
-	Duel.SendtoHand(e:GetHandler(),nil,REASON_COST)
+	if chk==0 then return e:GetHandler():IsAbleToDeckAsCost() end
+	Duel.SendtoDeck(e:GetHandler(),nil,0,REASON_COST)
 	Duel.ConfirmCards(1-tp,e:GetHandler())
+	Duel.ShuffleDeck(tp)
 end
 function c21520080.rftg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then

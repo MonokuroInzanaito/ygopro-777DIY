@@ -23,8 +23,8 @@ end
 function c21520113.spcon(e,c)
 	if c==nil then return true end
 	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0 and
-		Duel.IsExistingMatchingCard(c21520113.filter,c:GetControler(),LOCATION_MZONE,0,1,nil)
+		Duel.IsExistingMatchingCard(c21520113.filter,c:GetControler(),LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
 end
 function c21520113.value(e,c)
-	return Duel.GetMatchingGroupCount(c21520113.filter,c:GetControler(),LOCATION_MZONE,0,nil)*500
+	return Duel.GetMatchingGroupCount(c21520113.filter,c:GetControler(),LOCATION_ONFIELD,LOCATION_ONFIELD,nil)*500
 end

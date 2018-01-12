@@ -11,7 +11,7 @@ function c21520136.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c21520136.dfilter(c)
-	return c:IsSetCard(0x491) and (not c:IsOnField() or c:IsFaceup())
+	return (c:IsSetCard(0x491) and not c:IsSetCard(0x5491)) and c:IsType(TYPE_MONSTER) and (not c:IsOnField() or c:IsFaceup())
 end
 function c21520136.condition(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(c21520136.dfilter,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,nil)
@@ -35,5 +35,5 @@ function c21520136.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c21520136.thfilter(c)
-	return c:IsSetCard(0x492) and c:IsAbleToHand()
+	return c:IsSetCard(0x5491) and c:IsAbleToHand()
 end

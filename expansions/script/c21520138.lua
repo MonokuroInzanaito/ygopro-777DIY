@@ -12,10 +12,10 @@ function c21520138.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c21520138.filter(c)
-	return c:IsSetCard(0x491) and c:IsAbleToGrave()
+	return (c:IsSetCard(0x491) and not c:IsSetCard(0x5491)) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
 end
 function c21520138.thfilter(c)
-	return (c:IsSetCard(0x491) or c:IsSetCard(0x492)) and c:IsAbleToHand()
+	return c:IsSetCard(0x491) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
 function c21520138.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(c21520138.filter,tp,LOCATION_DECK,0,nil)

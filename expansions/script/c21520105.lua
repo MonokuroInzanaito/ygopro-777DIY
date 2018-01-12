@@ -13,7 +13,7 @@ function c21520105.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c21520105.filter(c)
-	return c:IsSetCard(0x3491)
+	return c:IsSetCard(0x491)
 end
 function c21520105.condition(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c21520105.filter,1,e:GetHandler())

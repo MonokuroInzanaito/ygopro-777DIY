@@ -26,7 +26,7 @@ function c21520116.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return ep==tp
 end
 function c21520116.spfilter(c)
-	return c:IsReleasable() and c:IsSetCard(0x9491) and (not c:IsStatus(STATUS_BATTLE_DESTROYED) and not c:IsStatus(STATUS_DESTROY_CONFIRMED))
+	return c:IsReleasable() and c:IsSetCard(0x491) and (not c:IsStatus(STATUS_BATTLE_DESTROYED) and not c:IsStatus(STATUS_DESTROY_CONFIRMED))
 end
 function c21520116.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

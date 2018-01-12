@@ -2,15 +2,6 @@
 function c21520185.initial_effect(c)
 	--pendulum summon
 	aux.EnablePendulumAttribute(c)
-	 --splimit
-	local pe1=Effect.CreateEffect(c)
-	pe1:SetType(EFFECT_TYPE_FIELD)
-	pe1:SetRange(LOCATION_PZONE)
-	pe1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	pe1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
-	pe1:SetTargetRange(1,0)
-	pe1:SetTarget(c21520185.splimit)
-	c:RegisterEffect(pe1)
 	--recover
 	local pe1=Effect.CreateEffect(c)
 	pe1:SetCategory(CATEGORY_RECOVER)
@@ -59,10 +50,6 @@ function c21520185.initial_effect(c)
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e3)
 end
-function c21520185.splimit(e,c,sump,sumtype,sumpos,targetp)
-	if c:IsSetCard(0x490) then return false end
-	return bit.band(sumtype,SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
-end
 function c21520185.reccon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
 	return ep~=tp and tc:IsControler(tp) and tc:IsSetCard(0x490)
@@ -71,10 +58,10 @@ function c21520185.recop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Recover(tp,ev,REASON_EFFECT)
 end
 function c21520185.drtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and chkc~=e:GetHandler() end
-	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,0,1,e:GetHandler(),tp) end
+	if chkc then return chkc:IsOnField() and chkc:IsControler(tp)  end
+	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler(),tp)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,1,0,LOCATION_DECK)
 end

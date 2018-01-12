@@ -28,20 +28,20 @@ function c21520140.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local mg=Group.CreateGroup()
 	local tc=eg:GetFirst()
 	while tc do
-		if tc:IsSetCard(0x492) and tc:IsType(TYPE_MONSTER) then
+		if tc:IsSetCard(0x5491) and tc:IsType(TYPE_MONSTER) then
 			tc:RegisterFlagEffect(21520140,RESET_PHASE+PHASE_END,0,1)
 			mg:AddCard(tc)
 		end
-		if mg:GetCount()>0 then Duel.RaiseEvent(mg,EVENT_CUSTOM+21520140,e,0,0,0,0) end
 		tc=eg:GetNext()
 	end
+	if mg:GetCount()>0 then Duel.RaiseEvent(mg,EVENT_CUSTOM+21520140,e,0,0,0,0) end
 --	c21520140[0]=mg+c21520140[0]
 end
 function c21520140.cfilter(c,flag)
 	if flag~=nil then
-		return c:IsSetCard(0x492) and c:IsType(TYPE_MONSTER) and c:GetFlagEffect(flag)~=0
+		return c:IsSetCard(0x5491) and c:IsType(TYPE_MONSTER) and c:GetFlagEffect(flag)~=0
 	else
-		return c:IsSetCard(0x492) and c:IsType(TYPE_MONSTER)
+		return c:IsSetCard(0x5491) and c:IsType(TYPE_MONSTER)
 	end
 end
 function c21520140.condition(e,tp,eg,ep,ev,re,r,rp)

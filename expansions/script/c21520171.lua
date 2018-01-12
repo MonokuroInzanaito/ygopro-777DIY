@@ -52,7 +52,7 @@ function c21520171.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 function c21520171.adcon(e,tp,eg,ep,ev,re,r,rp)
-	return not e:GetHandler():IsDisabled() and not bit.band(r,REASON_RULE)==REASON_RULE
+	return not e:GetHandler():IsDisabled()
 end
 function c21520171.adtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

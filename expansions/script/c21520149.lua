@@ -40,12 +40,12 @@ function c21520149.target1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then
 		return Duel.IsExistingTarget(c21520149.filter,tp,0,LOCATION_MZONE,1,nil)
 	end
-	if (e:GetHandler():GetFlagEffect(21520149)==0
+	if (Duel.GetFlagEffect(tp,21520149)==0
 		and Duel.IsExistingTarget(c21520149.filter,tp,0,LOCATION_MZONE,1,nil)
 		and Duel.SelectYesNo(tp,aux.Stringid(21520149,1))) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 		Duel.SelectTarget(tp,c21520149.filter,tp,0,LOCATION_MZONE,1,1,nil)
-		e:GetHandler():RegisterFlagEffect(21520149,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
+		Duel.RegisterFlagEffect(tp,21520149,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
 		e:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	else
 		e:SetProperty(0)
@@ -53,11 +53,11 @@ function c21520149.target1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c21520149.target2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and c21520149.filter(chkc) end
-	if chk==0 then return e:GetHandler():GetFlagEffect(21520149)==0
+	if chk==0 then return Duel.GetFlagEffect(tp,21520149)==0
 		and Duel.IsExistingTarget(c21520149.filter,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 	Duel.SelectTarget(tp,c21520149.filter,tp,0,LOCATION_MZONE,1,1,nil)
-	e:GetHandler():RegisterFlagEffect(21520149,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
+	Duel.RegisterFlagEffect(tp,21520149,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
 end
 function c21520149.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and c21520149.filter(chkc) end

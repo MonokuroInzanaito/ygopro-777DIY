@@ -34,6 +34,16 @@ function c21520139.initial_effect(c)
 	e4:SetTarget(c21520139.drtg)
 	e4:SetOperation(c21520139.drop)
 	c:RegisterEffect(e4)
+	--up 100
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(21520139,1))
+	e5:SetCategory(CATEGORY_ATKCHANGE)
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_GRAVE)
+	e5:SetCost(c21520139.aucost)
+	e5:SetTarget(c21520139.autg)
+	e5:SetOperation(c21520139.auop)
+	c:RegisterEffect(e5)
 end
 function c21520139.eqlimit(e,c)
 	return c:IsSetCard(0x491)
@@ -68,4 +78,26 @@ function c21520139.drop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT)
+end
+function c21520139.aucost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
+	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
+end
+function c21520139.autg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+end
+function c21520139.auop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+	if g:GetCount()>0 then
+		local tc=g:GetFirst()
+		while tc do
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_UPDATE_ATTACK)
+			e1:SetReset(RESET_EVENT+0x1fe0000)
+			e1:SetValue(100)
+			tc:RegisterEffect(e1)
+			tc=g:GetNext()
+		end
+	end
 end
